@@ -5,14 +5,16 @@ package sort;
  * @author Dominik
  * @param <E> Data type for this container class
  */
-public abstract class SortingAlgorithm<E extends Object> {
+public abstract class SortingAlgorithm<E extends Object>
+{
 
     private E[] values;
-    private int vergleiche, tausche, lesezugriffe, schreibzugriffe;
+    private int comparisons, permutations, readAccesses, writeAccesses;
     private Comparator comp;
     private final java.util.LinkedList<SortingListener> listener = new java.util.LinkedList();
 
-    public SortingAlgorithm(Comparator<E> c) {
+    public SortingAlgorithm(Comparator<E> c)
+    {
         resetCounters();
         comp = c;
     }
@@ -33,13 +35,18 @@ public abstract class SortingAlgorithm<E extends Object> {
      * @param faktor multipiliziert mit n bestimmt das Maximum
      * @return ein Array mit Zufallszahlen
      */
-    public static int[] fillIntArray(int n, double faktor, boolean dopplung) {
+    public static int[] fillIntArray(int n, double faktor, boolean dopplung)
+    {
         int[] a = new int[n++];
-        for (int i = 0; i < a.length; i++) {
+        for (int i = 0; i < a.length; i++)
+        {
             a[i] = (int) (Math.random() * faktor * n);
-            if (!dopplung) {
-                for (int j = 0; j < i; j++) {
-                    if (a[j] == a[i]) {
+            if (!dopplung)
+            {
+                for (int j = 0; j < i; j++)
+                {
+                    if (a[j] == a[i])
+                    {
                         i--;
                         break;
                     }
@@ -57,8 +64,9 @@ public abstract class SortingAlgorithm<E extends Object> {
      * @return Anzahl der vorgenommenen Vergleiche zweier Einträge in einem
      * Array
      */
-    public int getComparisons() {
-        return vergleiche;
+    public int getComparisons()
+    {
+        return comparisons;
     }
 
     /**
@@ -68,8 +76,9 @@ public abstract class SortingAlgorithm<E extends Object> {
      *
      * @return Anzahl der vorgenommenen Vertauschoperationen
      */
-    public int getSwitches() {
-        return tausche;
+    public int getSwitches()
+    {
+        return permutations;
     }
 
     /**
@@ -79,8 +88,9 @@ public abstract class SortingAlgorithm<E extends Object> {
      *
      * @return Anzahl Lesezugriffe
      */
-    public int getReadOperations() {
-        return lesezugriffe;
+    public int getReadOperations()
+    {
+        return readAccesses;
     }
 
     /**
@@ -90,15 +100,18 @@ public abstract class SortingAlgorithm<E extends Object> {
      *
      * @return Anzahl Lesezugriffe
      */
-    public int getWriteOperations() {
-        return schreibzugriffe;
+    public int getWriteOperations()
+    {
+        return writeAccesses;
     }
 
-    public void addSortierListener(SortingListener neu) {
+    public void addSortierListener(SortingListener neu)
+    {
         listener.add(neu);
     }
 
-    public void removeSortierListener(SortingListener sl) {
+    public void removeSortierListener(SortingListener sl)
+    {
         listener.remove(sl);
     }
 
@@ -109,8 +122,9 @@ public abstract class SortingAlgorithm<E extends Object> {
      * @param i Index of the Element
      * @return value at the spezified position in the array
      */
-    public E get(int i) {
-        lesezugriffe++;
+    public E get(int i)
+    {
+        readAccesses++;
         return values[i];
     }
 
@@ -121,8 +135,9 @@ public abstract class SortingAlgorithm<E extends Object> {
      * @param i Position in the array
      * @param val new value to set at the spezified position
      */
-    public void set(int i, E val) {
-        schreibzugriffe++;
+    public void set(int i, E val)
+    {
+        writeAccesses++;
         values[i] = val;
     }
 
@@ -131,7 +146,8 @@ public abstract class SortingAlgorithm<E extends Object> {
      *
      * @return the length of the array
      */
-    public int size() {
+    public int size()
+    {
         return values.length;
     }
 
@@ -140,11 +156,13 @@ public abstract class SortingAlgorithm<E extends Object> {
      *
      * @param a the array to set
      */
-    public void setValues(E[] a) {
+    public void setValues(E[] a)
+    {
         values = a.clone();
     }
 
-    public E[] getValues() {
+    public E[] getValues()
+    {
         return values.clone();
     }
 
@@ -152,11 +170,12 @@ public abstract class SortingAlgorithm<E extends Object> {
      * Resets all operation counters to zero. Use this before starting a new
      * measurement.
      */
-    public final void resetCounters() {
-        tausche = 0;
-        vergleiche = 0;
-        lesezugriffe = 0;
-        schreibzugriffe = 0;
+    public final void resetCounters()
+    {
+        permutations = 0;
+        comparisons = 0;
+        readAccesses = 0;
+        writeAccesses = 0;
     }
 
     /**
@@ -170,47 +189,59 @@ public abstract class SortingAlgorithm<E extends Object> {
      * @return true if the element at the first position is GREATER THAN the
      * element at the second position, false otherwise.
      */
-    public boolean compare(int i1, int i2) {
-        for (SortingListener sl : listener) {
-            sl.verglichen(i1, i2);
+    public boolean compare(int i1, int i2)
+    {
+        for (SortingListener sl : listener)
+        {
+            sl.compared(i1, i2);
         }
-        vergleiche++;
+        comparisons++;
         return comp.compare(get(i1), get(i2));
     }
 
-    public boolean compare(E e1, E e2) {
-        for (SortingListener sl : listener) {
+    public boolean compare(E e1, E e2)
+    {
+        for (SortingListener sl : listener)
+        {
             //sl.verglichen(e1, e2);
         }
-        vergleiche++;
+        comparisons++;
         return comp.compare(e1, e2);
     }
 
-    public void setComparator(Comparator c) {
+    public void setComparator(Comparator c)
+    {
         comp = c;
     }
 
-    public void switchValues(int i1, int i2) {
+    public void switchValues(int i1, int i2)
+    {
         E temp = get(i1);
         set(i1, get(i2));
         set(i2, temp);
-        tausche++;
-        for (SortingListener sl : listener) {
-            sl.vertauscht(i1, i2);
+        permutations++;
+        for (SortingListener sl : listener)
+        {
+            sl.switched(i1, i2);
         }
     }
 
-    public boolean check() {
-        for (int i = 1; i < values.length; i++) {
-            if (compare(i - 1, i)) {
+    public boolean check()
+    {
+        for (int i = 1; i < values.length; i++)
+        {
+            if (compare(i - 1, i))
+            {
                 return false;
             }
         }
         return true;
     }
 
-    public void printValues() {
-        for (E e : values) {
+    public void printValues()
+    {
+        for (E e : values)
+        {
             System.out.print(e + " ");
         }
     }

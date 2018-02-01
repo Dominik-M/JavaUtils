@@ -16,6 +16,10 @@
  */
 package main;
 
+import client.Client;
+import client.ClientListener;
+import server.Server;
+
 /**
  *
  * @author Dominik Messerschmidt
@@ -28,6 +32,36 @@ public class Main
      */
     public static void main(String[] args)
     {
-        // TODO code application logic here
+        // sort.Sortingtest.runTest(10, 10000);
+        Server server = Server.getInstance();
+        server.start();
+        Client client = new Client();
+        client.addClientListener(new ClientListener()
+        {
+            @Override
+            public void onConnect()
+            {
+                System.out.println("onConnect()");
+            }
+
+            @Override
+            public void onDisconnect()
+            {
+                System.out.println("onDisconnect()");
+            }
+
+            @Override
+            public void onUserlistChanged()
+            {
+                System.out.println("onUserlistChanged()");
+            }
+
+            @Override
+            public void println(String txt)
+            {
+                System.out.println(txt);
+            }
+        });
+        client.connect("Peter", "0.0.0.0", 52056);
     }
 }

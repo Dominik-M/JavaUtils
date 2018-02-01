@@ -16,8 +16,7 @@
  */
 package graphic;
 
-import eds.Dictionary;
-import eds.Executable;
+import eds.Interpreter;
 import java.util.LinkedList;
 
 /**
@@ -28,7 +27,7 @@ import java.util.LinkedList;
 public class ConsolePanel extends javax.swing.JPanel
 {
 
-    public final Dictionary<String, Executable> COMMANDS = new Dictionary<>();
+    public final Interpreter interpreter = new Interpreter();
     private final LinkedList<String> lastInputs = new LinkedList<>();
     private int index = -1;
 
@@ -130,31 +129,12 @@ public class ConsolePanel extends javax.swing.JPanel
         lastInputs.addFirst(in);
         input.setText("");
         index = -1;
-        String command;
-        String[] params;
-        if (in.contains(" "))
-        {
-            command = in.substring(0, in.indexOf(" "));
-            params = in.split(in.substring(in.indexOf(" ")));
-        }
-        else
-        {
-            command = in;
-            params = new String[0];
-        }
-        if (COMMANDS.containsKey(command))
-        {
-            COMMANDS.get(command).execute(params);
-        }
-        else
-        {
-            System.err.println("Unknown command: " + command);
-        }
+        interpreter.processLine(in);
     }// GEN-LAST:event_inputActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)
     {// GEN-FIRST:event_jButton1ActionPerformed
-        MainFrame.FRAME.setConsoleEnabled(false);
+        //MainFrame.FRAME.setConsoleEnabled(false);
     }// GEN-LAST:event_jButton1ActionPerformed
 
     private void inputKeyPressed(java.awt.event.KeyEvent evt)
