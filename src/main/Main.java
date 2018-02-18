@@ -17,7 +17,7 @@
 package main;
 
 import client.Client;
-import client.ClientListener;
+import server.Constants;
 import server.Server;
 
 /**
@@ -36,6 +36,7 @@ public class Main
         Server server = Server.getInstance();
         server.start();
         Client client = new Client();
+        /*
         client.addClientListener(new ClientListener()
         {
             @Override
@@ -62,6 +63,10 @@ public class Main
                 System.out.println(txt);
             }
         });
-        client.connect("Peter", "0.0.0.0", 52056);
+         */
+        if (client.connect("Peter", "0.0.0.0", 52056))
+        {
+            client.send(client.assembleRequest(Constants.REQUEST_QUIT, ""));
+        }
     }
 }

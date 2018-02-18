@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.logging.Level;
@@ -28,6 +29,9 @@ import java.util.logging.Logger;
 import server.Constants;
 
 /**
+ * Subclass of Thread using java.net.Socket to establish an UDP/IP connection to
+ * a remote Server. Thread automatically starts when connect is called.
+ * Callbacks are provided by
  *
  * @author Dominik Messerschmidt
  * <dominik.messerschmidt@continental-corporation.com> Created 16.09.2016
@@ -67,31 +71,37 @@ public class Client extends Thread
     {
         try
         {
-            println("Verbindung wird hergestellt...");
+            println("Connecting to " + adress + ":" + port + "...");
             socket = new Socket(adress, port);
             zumserver = new PrintWriter(socket.getOutputStream(), true);
             vomserver = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            start();
-            if (setUserName(name))
-            {
-                println("Connection established successfully");
-            }
-            else
-            {
-                println("ERROR: Timed out while connecting");
-            }
+        }
+        catch (ConnectException ex)
+        {
+            System.err.println("Connection refused.");
+            return false;
         }
         catch (IOException ex)
         {
             Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
-        for (ClientListener l : LISTENER)
+        start();
+        if (setUserName(name))
         {
-            l.onConnect();
-            l.println("Connected with " + socket.getInetAddress());
+            println("Connection established successfully");
+            for (ClientListener l : LISTENER)
+            {
+                l.onConnect();
+                l.println("Connected with " + socket.getInetAddress());
+            }
+            return true;
         }
-        return true;
+        else
+        {
+            println("ERROR: Timed out while connecting");
+            return false;
+        }
     }
 
     public void disconnect()
@@ -118,7 +128,7 @@ public class Client extends Thread
     }
 
     @Override
-    public synchronized void run()
+    public void run()
     {
         if (isConnected())
         {
@@ -135,9 +145,9 @@ public class Client extends Thread
                     disconnect();
                     break;
                 }
-                catch (Exception ex)
+                catch (IOException ex)
                 {
-                    System.err.println("Fehler: " + ex);
+                    System.err.println(getName() + " - Fehler: " + ex);
                     continue;
                 }
                 println(text);
@@ -158,8 +168,11 @@ public class Client extends Thread
                 }
                 else if (text.startsWith(Constants.ACK))
                 {
-                    noAck = false;
-                    notify();
+                    synchronized (this)
+                    {
+                        noAck = false;
+                        notifyAll();
+                    }
                 }
                 else
                 /* if (!sound.Sound.isPlaying())*/ {
@@ -185,17 +198,14 @@ public class Client extends Thread
 
     public synchronized boolean sendAndWaitOnAck(String text, int timeout)
     {
+        noAck = true;
         if (send(text))
         {
             try
             {
-                noAck = true;
-                for (int i = 0; i < timeout / 10 && noAck; i++)
-                {
-                    wait(10);
-                }
+                wait(timeout);
             }
-            catch (Exception ex)
+            catch (InterruptedException ex)
             {
             }
             return !noAck;
@@ -206,8 +216,8 @@ public class Client extends Thread
     public boolean setUserName(String name)
     {
         this.name = name;
-
-        return sendAndWaitOnAck(assembleRequest(Constants.REQUEST_NAME, name), 10000);
+        setName("Client-Thread of " + name);
+        return sendAndWaitOnAck(assembleRequest(Constants.REQUEST_NAME, name), 5000);
     }
 
     /**

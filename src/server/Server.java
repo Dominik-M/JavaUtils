@@ -38,6 +38,7 @@ public class Server implements Runnable, WorkerListener
     private final CopyOnWriteArrayList<Worker> USER;
     private final CopyOnWriteArrayList<ServerListener> LISTENER;
     private ServerSocket serverSocket;
+    private boolean remoteQuitAllowed = true;
 
     private Server()
     {
@@ -66,6 +67,7 @@ public class Server implements Runnable, WorkerListener
         {
             serverSocket = new ServerSocket(Constants.PORT);
             SERVER_THREAD = new Thread(SERVER);
+            SERVER_THREAD.setName("Server-Thread");
             SERVER_THREAD.start();
             for (ServerListener l : LISTENER)
             {
@@ -99,7 +101,7 @@ public class Server implements Runnable, WorkerListener
             }
             close();
         }
-        catch (Exception ex)
+        catch (IOException ex)
         {
             println("Fehler: " + ex);
         }
@@ -125,13 +127,35 @@ public class Server implements Runnable, WorkerListener
                 text = text.substring(text.indexOf(" ") + 1);
             }
             source.send(Constants.ACK);
-            if (code == Constants.REQUEST_NAME)
+            switch (code)
             {
-                source.setArbeiterName(text);
-            }
-            for (ServerListener l : LISTENER)
-            {
-                l.performRequest(source, code, text);
+                case Constants.REQUEST_NAME:
+                {
+                    source.setArbeiterName(text);
+                    break;
+                }
+                case Constants.REQUEST_QUIT:
+                {
+                    if (remoteQuitAllowed)
+                    {
+                        try
+                        {
+                            serverSocket.close();
+                        }
+                        catch (IOException ex)
+                        {
+                            System.err.println(ex);
+                        }
+                    }
+                    break;
+                }
+                default:
+                {
+                    for (ServerListener l : LISTENER)
+                    {
+                        l.performRequest(source, code, text);
+                    }
+                }
             }
         }
         else if (text.startsWith(Constants.ERROR))
@@ -226,7 +250,7 @@ public class Server implements Runnable, WorkerListener
         {
             l.println(txt);
         }
-        System.out.println(txt);
+        System.out.println(Thread.currentThread().getName() + ": " + txt);
     }
 
     public void close()
