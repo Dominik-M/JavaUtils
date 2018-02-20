@@ -33,13 +33,54 @@ import java.util.logging.Logger;
 public class Filewalker extends Thread
 {
 
+    public static final String[] SUPPORTED_FORMATS = new String[]
+    {
+        "png", "jpg", "gif", "bmp", "PNG", "JPG", "GIF", "BMP"
+    };
+
+    public static final String[] SYSTEM_DIRS = new String[]
+    {
+        "C:\\ProgramData", "C:\\Program Files", "C:\\Program Files (x86)", "C:\\Windows", "C:\\$"
+    };
+
+    public static final FileFilter IMAGE_FILE_FILTER = new FileFilter()
+    {
+        @Override
+        public boolean accept(File file)
+        {
+            for (String format : SUPPORTED_FORMATS)
+            {
+                if (file.getName().endsWith("." + format))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    };
+    public static final FileFilter SYS_DIR_FILE_FILTER = new FileFilter()
+    {
+        @Override
+        public boolean accept(File file)
+        {
+            for (String sysdir : SYSTEM_DIRS)
+            {
+                if (file.getAbsolutePath().startsWith(sysdir))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+    };
+
     public enum State
     {
         IDLE, SEARCHING, SORTING, COPYING, DONE;
     }
 
     private final File root;
-    private final boolean recursive;
+    private final boolean recursive, skipSys;
     private final LinkedList<File> selection;
     private final FileFilter filter;
     private int processedFiles;
@@ -47,23 +88,24 @@ public class Filewalker extends Thread
     private State state;
     public final LinkedList<FilewalkerListener> LISTENER = new LinkedList<>();
 
-    public Filewalker(File rootDir, FileFilter filefilter, boolean recursiveSearchEnabled)
+    public Filewalker(File rootDir, FileFilter filefilter, boolean recursiveSearchEnabled, boolean skipSystemDirs)
     {
         root = rootDir;
         recursive = recursiveSearchEnabled;
         filter = filefilter;
         selection = new LinkedList<>();
         state = State.IDLE;
+        skipSys = skipSystemDirs;
     }
 
     public Filewalker(File rootDir, FileFilter filefilter)
     {
-        this(rootDir, filefilter, true);
+        this(rootDir, filefilter, true, true);
     }
 
     public Filewalker(File rootDir)
     {
-        this(rootDir, null, true);
+        this(rootDir, null, true, true);
     }
 
     public State getProcessState()
@@ -173,7 +215,7 @@ public class Filewalker extends Thread
             return;
         }
         File[] files = dir.listFiles();
-        if (files != null)
+        if (files != null && (!skipSys || SYS_DIR_FILE_FILTER.accept(dir)))
         {
             for (File file : files)
             {

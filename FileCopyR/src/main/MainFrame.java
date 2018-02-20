@@ -19,7 +19,6 @@ package main;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileFilter;
 import javax.swing.JFileChooser;
 import javax.swing.Timer;
 
@@ -29,26 +28,6 @@ import javax.swing.Timer;
  */
 public class MainFrame extends javax.swing.JFrame
 {
-
-    public static final String[] SUPPORTED_FORMATS = new String[]
-    {
-        "png", "jpg", "gif", "bmp", "PNG", "JPG", "GIF", "BMP"
-    };
-    public static final FileFilter IMAGE_FILE_FILTER = new FileFilter()
-    {
-        @Override
-        public boolean accept(File file)
-        {
-            for (String format : SUPPORTED_FORMATS)
-            {
-                if (file.getName().endsWith("." + format))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    };
 
     private final Timer refreshTimer = new Timer(200, new ActionListener()
     {
@@ -223,7 +202,7 @@ public class MainFrame extends javax.swing.JFrame
         destTextField = new javax.swing.JTextField();
         destBrowseButton = new javax.swing.JButton();
         jLabel3 = new javax.swing.JLabel();
-        recusiveEnableButton = new javax.swing.JCheckBox();
+        recusiveEnableCheckBox = new javax.swing.JCheckBox();
         startButton = new javax.swing.JButton();
         copyProgressBar = new javax.swing.JProgressBar();
         filecountLabel = new javax.swing.JLabel();
@@ -231,6 +210,7 @@ public class MainFrame extends javax.swing.JFrame
         output = new javax.swing.JTextArea();
         startCopy = new javax.swing.JButton();
         imageFilesCheckBox = new javax.swing.JCheckBox();
+        skipSysCheckBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FileCopyR");
@@ -263,8 +243,8 @@ public class MainFrame extends javax.swing.JFrame
 
         jLabel3.setText("Options:");
 
-        recusiveEnableButton.setSelected(true);
-        recusiveEnableButton.setText("Recursive");
+        recusiveEnableCheckBox.setSelected(true);
+        recusiveEnableCheckBox.setText("Recursive");
 
         startButton.setText("Start search");
         startButton.addActionListener(new java.awt.event.ActionListener()
@@ -295,6 +275,9 @@ public class MainFrame extends javax.swing.JFrame
 
         imageFilesCheckBox.setSelected(true);
         imageFilesCheckBox.setText("Image files only");
+
+        skipSysCheckBox.setSelected(true);
+        skipSysCheckBox.setText("Skip system directories");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -329,9 +312,11 @@ public class MainFrame extends javax.swing.JFrame
                             .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
                                 .addComponent(jLabel3)
                                 .addGap(18, 18, 18)
-                                .addComponent(recusiveEnableButton)
+                                .addComponent(recusiveEnableCheckBox)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(imageFilesCheckBox)))
+                                .addComponent(imageFilesCheckBox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(skipSysCheckBox)))
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -354,8 +339,9 @@ public class MainFrame extends javax.swing.JFrame
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(recusiveEnableButton)
-                        .addComponent(imageFilesCheckBox)))
+                        .addComponent(recusiveEnableCheckBox)
+                        .addComponent(imageFilesCheckBox)
+                        .addComponent(skipSysCheckBox)))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(startButton)
@@ -402,13 +388,15 @@ public class MainFrame extends javax.swing.JFrame
         {
             // start
             System.out.println("Creating new Filewalker instance");
+            boolean recursive = recusiveEnableCheckBox.isSelected();
+            boolean skipSys = skipSysCheckBox.isSelected();
             if (imageFilesCheckBox.isSelected())
             {
-                filewalker = new Filewalker(getSourceFile(), IMAGE_FILE_FILTER);
+                filewalker = new Filewalker(getSourceFile(), Filewalker.IMAGE_FILE_FILTER, recursive, skipSys);
             }
             else
             {
-                filewalker = new Filewalker(getSourceFile());
+                filewalker = new Filewalker(getSourceFile(), null, recursive, skipSys);
             }
             filewalker.LISTENER.add(callback);
             filewalker.start();
@@ -440,7 +428,8 @@ public class MainFrame extends javax.swing.JFrame
     private javax.swing.JLabel jLabel3;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea output;
-    private javax.swing.JCheckBox recusiveEnableButton;
+    private javax.swing.JCheckBox recusiveEnableCheckBox;
+    private javax.swing.JCheckBox skipSysCheckBox;
     private javax.swing.JButton sourceBrowseButton;
     private javax.swing.JTextField sourceTextField;
     private javax.swing.JButton startButton;
