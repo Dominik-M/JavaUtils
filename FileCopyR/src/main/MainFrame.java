@@ -209,8 +209,9 @@ public class MainFrame extends javax.swing.JFrame
         jScrollPane1 = new javax.swing.JScrollPane();
         output = new javax.swing.JTextArea();
         startCopy = new javax.swing.JButton();
-        imageFilesCheckBox = new javax.swing.JCheckBox();
+        filterFilesCheckBox = new javax.swing.JCheckBox();
         skipSysCheckBox = new javax.swing.JCheckBox();
+        fileendingsTextField = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("FileCopyR");
@@ -273,50 +274,62 @@ public class MainFrame extends javax.swing.JFrame
             }
         });
 
-        imageFilesCheckBox.setSelected(true);
-        imageFilesCheckBox.setText("Image files only");
+        filterFilesCheckBox.setSelected(true);
+        filterFilesCheckBox.setText("Filter for filename endings");
+        filterFilesCheckBox.addActionListener(new java.awt.event.ActionListener()
+        {
+            public void actionPerformed(java.awt.event.ActionEvent evt)
+            {
+                filterFilesCheckBoxActionPerformed(evt);
+            }
+        });
 
         skipSysCheckBox.setSelected(true);
         skipSysCheckBox.setText("Skip system directories");
+
+        fileendingsTextField.setText("png,jpg,bmp,gif");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1)
-                    .addComponent(copyProgressBar, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(copyProgressBar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel1)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(sourceTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 301, Short.MAX_VALUE))
+                                .addComponent(sourceTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(destTextField)))
+                                .addComponent(destTextField))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel3)
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(recusiveEnableCheckBox)
+                                        .addGap(105, 105, 105)
+                                        .addComponent(skipSysCheckBox)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 2, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addComponent(filterFilesCheckBox)
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(fileendingsTextField)))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(sourceBrowseButton)
                             .addComponent(destBrowseButton)))
-                    .addComponent(filecountLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(startCopy))
-                            .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                                .addComponent(jLabel3)
-                                .addGap(18, 18, 18)
-                                .addComponent(recusiveEnableCheckBox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(imageFilesCheckBox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(skipSysCheckBox)))
+                    .addComponent(filecountLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(startCopy)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -340,18 +353,21 @@ public class MainFrame extends javax.swing.JFrame
                     .addComponent(jLabel3)
                     .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                         .addComponent(recusiveEnableCheckBox)
-                        .addComponent(imageFilesCheckBox)
                         .addComponent(skipSysCheckBox)))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(filterFilesCheckBox)
+                    .addComponent(fileendingsTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(startButton)
                     .addComponent(startCopy))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGap(18, 18, 18)
                 .addComponent(filecountLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(copyProgressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 141, Short.MAX_VALUE)
+                .addComponent(jScrollPane1)
                 .addContainerGap())
         );
 
@@ -390,13 +406,11 @@ public class MainFrame extends javax.swing.JFrame
             System.out.println("Creating new Filewalker instance");
             boolean recursive = recusiveEnableCheckBox.isSelected();
             boolean skipSys = skipSysCheckBox.isSelected();
-            if (imageFilesCheckBox.isSelected())
+            filewalker = new Filewalker(getSourceFile(), recursive, skipSys);
+            if (filterFilesCheckBox.isSelected())
             {
-                filewalker = new Filewalker(getSourceFile(), Filewalker.IMAGE_FILE_FILTER, recursive, skipSys);
-            }
-            else
-            {
-                filewalker = new Filewalker(getSourceFile(), null, recursive, skipSys);
+                String[] fileendings = fileendingsTextField.getText().split(",");
+                filewalker.setSupportedFormats(fileendings);
             }
             filewalker.LISTENER.add(callback);
             filewalker.start();
@@ -417,12 +431,18 @@ public class MainFrame extends javax.swing.JFrame
         }
     }//GEN-LAST:event_startCopyActionPerformed
 
+    private void filterFilesCheckBoxActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_filterFilesCheckBoxActionPerformed
+    {//GEN-HEADEREND:event_filterFilesCheckBoxActionPerformed
+        fileendingsTextField.setEnabled(filterFilesCheckBox.isSelected());
+    }//GEN-LAST:event_filterFilesCheckBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JProgressBar copyProgressBar;
     private javax.swing.JButton destBrowseButton;
     private javax.swing.JTextField destTextField;
     private javax.swing.JLabel filecountLabel;
-    private javax.swing.JCheckBox imageFilesCheckBox;
+    private javax.swing.JTextField fileendingsTextField;
+    private javax.swing.JCheckBox filterFilesCheckBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

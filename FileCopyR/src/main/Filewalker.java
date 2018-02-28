@@ -33,9 +33,14 @@ import java.util.logging.Logger;
 public class Filewalker extends Thread
 {
 
-    public static final String[] SUPPORTED_FORMATS = new String[]
+    public static final String[] SUPPORTED_IMAGE_FORMATS = new String[]
     {
-        "png", "jpg", "gif", "bmp", "PNG", "JPG", "GIF", "BMP"
+        "png", "jpg", "gif", "bmp"
+    };
+
+    public static final String[] SUPPORTED_AUDIO_FORMATS = new String[]
+    {
+        "wav", "mp3", "mid"
     };
 
     public static final String[] SYSTEM_DIRS = new String[]
@@ -43,21 +48,6 @@ public class Filewalker extends Thread
         "C:\\ProgramData", "C:\\Program Files", "C:\\Program Files (x86)", "C:\\Windows", "C:\\$"
     };
 
-    public static final FileFilter IMAGE_FILE_FILTER = new FileFilter()
-    {
-        @Override
-        public boolean accept(File file)
-        {
-            for (String format : SUPPORTED_FORMATS)
-            {
-                if (file.getName().endsWith("." + format))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-    };
     public static final FileFilter SYS_DIR_FILE_FILTER = new FileFilter()
     {
         @Override
@@ -82,30 +72,60 @@ public class Filewalker extends Thread
     private final File root;
     private final boolean recursive, skipSys;
     private final LinkedList<File> selection;
-    private final FileFilter filter;
+    private FileFilter filter;
     private int processedFiles;
     private boolean stopRequest;
     private State state;
     public final LinkedList<FilewalkerListener> LISTENER = new LinkedList<>();
 
-    public Filewalker(File rootDir, FileFilter filefilter, boolean recursiveSearchEnabled, boolean skipSystemDirs)
+    public Filewalker(File rootDir, boolean recursiveSearchEnabled, boolean skipSystemDirs)
     {
         root = rootDir;
         recursive = recursiveSearchEnabled;
-        filter = filefilter;
         selection = new LinkedList<>();
         state = State.IDLE;
         skipSys = skipSystemDirs;
-    }
-
-    public Filewalker(File rootDir, FileFilter filefilter)
-    {
-        this(rootDir, filefilter, true, true);
+        filter = null;
     }
 
     public Filewalker(File rootDir)
     {
-        this(rootDir, null, true, true);
+        this(rootDir, true, true);
+    }
+
+    public void setSupportedFormats(String... fileendings)
+    {
+        if (fileendings == null)
+        {
+            System.out.println("Filewalker.setSupportedFormats(): Disabled file filtering");
+            filter = null;
+        }
+        else
+        {
+            System.out.print("Filewalker.setSupportedFormats(): Enabled filter for file endings:");
+            for (String format : fileendings)
+            {
+                System.out.print(" " + format);
+            }
+            System.out.println();
+            filter = new FileFilter()
+            {
+                final String[] SUPPORTED_FORMATS = fileendings;
+
+                @Override
+                public boolean accept(File file)
+                {
+                    for (String format : SUPPORTED_FORMATS)
+                    {
+                        if (file.getName().endsWith("." + format.toLowerCase()) || file.getName().endsWith("." + format.toUpperCase()))
+                        {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            };
+        }
     }
 
     public State getProcessState()
