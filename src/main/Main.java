@@ -16,9 +16,9 @@
  */
 package main;
 
-import client.Client;
-import server.Constants;
-import server.Server;
+import dmsr.utils.client.Client;
+import dmsr.utils.server.Constants;
+import dmsr.utils.server.Server;
 
 /**
  *
