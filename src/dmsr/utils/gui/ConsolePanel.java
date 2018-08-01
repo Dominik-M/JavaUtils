@@ -127,7 +127,7 @@ public class ConsolePanel extends javax.swing.JPanel
         lastInputs.addFirst(in);
         input.setText("");
         index = -1;
-        interpreter.processLine(in);
+        interpreter.process(in);
     }// GEN-LAST:event_inputActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt)

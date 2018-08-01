@@ -25,29 +25,49 @@ public class Interpreter
 
     public final Dictionary<String, Executable> COMMANDS = new Dictionary<>();
 
-    public boolean processLine(String input)
+    public boolean process(String[] args, int startIndex)
     {
-        String command;
-        String[] params;
-        if (input.contains(" "))
+        boolean ok = args != null && startIndex >= 0 && args.length >= startIndex;
+        if (ok)
         {
-            command = input.substring(0, input.indexOf(" "));
-            params = input.split(input.substring(input.indexOf(" ")));
+            String command;
+            String[] params;
+            command = args[startIndex];
+            params = new String[args.length - startIndex - 1];
+            for (int i = 0; i < params.length; i++)
+            {
+                params[i] = args[startIndex + i + 1];
+            }
+            if (COMMANDS.containsKey(command))
+            {
+                COMMANDS.get(command).execute(params);
+                ok = true;
+            }
+            else
+            {
+                System.err.println("Unknown command: " + command);
+                ok = false;
+            }
         }
         else
         {
-            command = input;
-            params = new String[0];
+            System.err.println("Missing command argument");
         }
-        if (COMMANDS.containsKey(command))
-        {
-            COMMANDS.get(command).execute(params);
-            return true;
-        }
-        else
-        {
-            System.err.println("Unknown command: " + command);
-            return false;
-        }
+        return ok;
+    }
+
+    public boolean process(String[] args)
+    {
+        return process(args, 0);
+    }
+
+    /**
+     *
+     * @param inputline Command line input like "COMMAND [parameter]"
+     * @return true if command found and executed
+     */
+    public boolean process(String inputline)
+    {
+        return process(inputline.split(" "));
     }
 }

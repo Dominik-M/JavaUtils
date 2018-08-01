@@ -16,27 +16,70 @@
  */
 package main;
 
-import dmsr.utils.client.Client;
-import dmsr.utils.server.Constants;
-import dmsr.utils.server.Server;
+import dmsr.utils.eds.Executable;
+import dmsr.utils.eds.Interpreter;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import javax.imageio.ImageIO;
+import javax.swing.JOptionPane;
 
 /**
  *
  * @author Dominik Messerschmidt
  */
-public class Main
+public final class Main
 {
+
+    public static final Interpreter INTERPRETER = new Interpreter();
+
+    private static void init()
+    {
+        INTERPRETER.COMMANDS.add("help", (Executable) (String... params) ->
+        {
+            System.out.println("Commands:");
+            for (String cmd : INTERPRETER.COMMANDS.getKeys())
+            {
+                System.out.println(cmd);
+            }
+        });
+
+        INTERPRETER.COMMANDS.add("createSpritesheet", (Executable) (String... params) ->
+        {
+            try
+            {
+                BufferedImage img = dmsr.utils.images.ImageIO.mergeToSpriteSheet(new File(params[0]), Integer.parseInt(params[1]), Integer.parseInt(params[2]));
+                ImageIO.write(img, "png", new File("spritesheet.png"));
+            }
+            catch (Exception ex)
+            {
+                JOptionPane.showMessageDialog(null, "Invalid parameters\n" + ex, "createSpritesheet - Error", JOptionPane.ERROR_MESSAGE);
+            }
+        });
+    }
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args)
     {
+        init();
+
+        if (!INTERPRETER.process(args, 0))
+        {
+            INTERPRETER.process("help");
+            String input = args[0];
+            for (int i = 1; i < args.length; i++)
+            {
+                input += " " + args[i];
+            }
+            JOptionPane.showMessageDialog(null, "Failed to process input \"" + input + "\"", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+        /*
         // sort.Sortingtest.runTest(10, 10000);
         Server server = Server.getInstance();
         server.start();
         Client client = new Client();
-        /*
         client.addClientListener(new ClientListener()
         {
             @Override
@@ -63,10 +106,11 @@ public class Main
                 System.out.println(txt);
             }
         });
-         */
+
         if (client.connect("Peter", "0.0.0.0", 52056))
         {
             client.send(client.assembleRequest(Constants.REQUEST_QUIT, ""));
         }
+         */
     }
 }
